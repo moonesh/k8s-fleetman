@@ -30,6 +30,7 @@ import com.virtualpairprogrammers.tracker.domain.VehiclePosition;
  */
 @Repository
 @Profile({"standalone","localhost"})
+
 public class DataBasicInMemoryImpl implements Data 
 {
 	private static final BigDecimal MPS_TO_MPH_FACTOR = new BigDecimal("2.236936");
@@ -43,8 +44,7 @@ public class DataBasicInMemoryImpl implements Data
 	
 	@Override
 	public void updatePosition(VehiclePosition data)
-	{
-		String vehicleName = data.getName();
+	{   String vehicleName = data.getName();
 		TreeSet<VehiclePosition> positions = positionDatabase.get(vehicleName);
 		if (positions == null) 
 		{
@@ -120,6 +120,7 @@ public class DataBasicInMemoryImpl implements Data
 			TreeSet<VehiclePosition> reports;
 			try 
 			{
+				System.out.println("------Since-------------------"+since);
 				reports = this.getAllReportsForVehicleSince(vehicleName, since);
 				if (!reports.isEmpty()) results.add(reports.first());				
 			} 

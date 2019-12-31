@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ɵConsole } from '@angular/core';
 import { Vehicle } from '../vehicle';
 import { VehicleService } from '../vehicle.service';
 
@@ -10,6 +10,8 @@ import { VehicleService } from '../vehicle.service';
 export class VehiclesComponent implements OnInit {
 
   vehicles: Vehicle[] = [];
+   
+ 
   centeredVehicle: string;
 
   constructor(private vehicleService: VehicleService) { }
@@ -19,14 +21,29 @@ export class VehiclesComponent implements OnInit {
       if (updatedVehicle==null) return;
       let foundIndex = this.vehicles.findIndex(existingVehicle => existingVehicle.name == updatedVehicle.name);
       if (foundIndex == -1)
-      {
+      { 
+       
+        //Populate the arrray with current lat long
+        updatedVehicle.godarray.push([updatedVehicle.lat,updatedVehicle.lng])
+       
         this.vehicles.push(updatedVehicle);
         this.vehicles.sort( (a:Vehicle,b:Vehicle) => {
           return (a.name < b.name) ? -1 : 1;
         });
       }
       else
-      {
+      { //In existing Vehicle Array add the new lat/log values
+        this.vehicles[foundIndex].godarray.push([updatedVehicle.lat,updatedVehicle.lng])
+        
+        //Assign the the complete existing array back to the updated obect since the updatedVehicle is the final object 
+        updatedVehicle.godarray=this.vehicles[foundIndex].godarray;
+
+        /********* TETS whether the array is being populated correctly 
+        if(updatedVehicle.name == "Dronfield Round"){
+        console.log("GODDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD ARRAAYYYYYYY")
+        console.log(updatedVehicle)}
+        }*/
+
         this.vehicles[foundIndex] = updatedVehicle;
       }
     });

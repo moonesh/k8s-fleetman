@@ -4,6 +4,9 @@ export class Vehicle {
   lng: number;
   dateAndTime: string;
   speed: number;
+  
+  //This contains all the lat longs of this Object - entire history
+  godarray = [];
 
   constructor(name: string, lat:number, lng:number, dateAndTime:string, speed: number) {
     this.name = name;
@@ -11,6 +14,7 @@ export class Vehicle {
     this.lng = lng;
     this.dateAndTime = dateAndTime;
     this.speed = speed;
+  
   }
 
 }

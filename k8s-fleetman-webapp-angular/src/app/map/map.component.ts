@@ -4,6 +4,7 @@ import { icon, latLng, Layer, Marker, marker, tileLayer, Map, point, polyline } 
 
 import { VehicleService } from '../vehicle.service';
 import { Vehicle } from '../vehicle';
+//import L = require('leaflet');
 
 @Component({
   selector: 'app-map',
@@ -15,9 +16,11 @@ export class MapComponent implements OnInit {
   constructor(private vehicleService: VehicleService) { }
 
   markers: Marker[] = [];
+  latlngs = [];
   map: Map;
   centerVehicle: string;
   selectedVehicleHistory;
+  vehicleHistory;
 
   options = {
     layers: [
@@ -33,6 +36,7 @@ export class MapComponent implements OnInit {
   onMapReady(map: Map) {
     this.map = map;
   }
+  
 
   ngOnInit() {
     this.vehicleService.subscription.subscribe(vehicle => {
@@ -56,12 +60,25 @@ export class MapComponent implements OnInit {
        else
        {
         this.markers[foundIndex].setLatLng(latLng(vehicle.lat, vehicle.lng));
-       }
+        this.latlngs = [ [vehicle.lat, vehicle.lng]];
+       
+     
+      }
+       
        if (this.centerVehicle == vehicle.name) {
-         //this.map.setView([vehicle.lat,vehicle.lng],
-        //                   this.map.getZoom(), {"animate": true});
-         this.selectedVehicleHistory.addLatLng(latLng(vehicle.lat, vehicle.lng));
+      
+      //This block is called whenever the centre vehicle's lat/long is updated.
+      //And on the update the polyline is painted automatically i.e.it calls
+      // ONLY the line : this.selectedVehicleHistory = polyline(myObject.godarray, {weight:10, opacity:0.5, color:'red'}).addTo(this.map);
+      //from the last function of this page. 
+      
+      //  console.log("------------------------------inside---------"+ this.centerVehicle)
+        
+      this.selectedVehicleHistory.addLatLng(latLng(vehicle.lat, vehicle.lng));
+
+         
        }
+      
      });
 
      this.vehicleService.centerVehicle.subscribe(vehicle => {
@@ -76,12 +93,22 @@ export class MapComponent implements OnInit {
        				   	       "animate": true
        				  });
      });
-
+       
+     
      this.vehicleService.centerVehicleHistory.subscribe(newHistory => {
+      
+      
        if (this.selectedVehicleHistory != null) this.selectedVehicleHistory.remove(this.map);
        if (newHistory ==null) return;
-       this.selectedVehicleHistory = polyline(newHistory, {weight:10, opacity:0.5, color:'red'});
-       this.selectedVehicleHistory.addTo(this.map);
+      
+     
+     var myObject: Vehicle;
+     myObject = <Vehicle> newHistory; 
+    
+     console.log(myObject);
+     
+     this.selectedVehicleHistory = polyline(myObject.godarray, {weight:10, opacity:0.5, color:'red'}).addTo(this.map);
+
      });
    }
 }
