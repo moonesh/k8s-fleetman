@@ -1,0 +1,68 @@
+FLEETMAN APPLICATION STEPS TO RUN:
+1. git clone https://github.com/moonesh/k8s-fleetman.git
+2. There are 6 Projects in total : 3 Springboot, 1 Mongo, 1 Active Mq & 1 Angular Webapp
+3. Import 3 SpringBoot Projects into Eclipse (as Maven Existing Projects )
+
+Start in the same sequence:
+4. Next two steps we will run the Docker containers for Mongo & ActiveMQ
+ a.  > docker run -d -p 8161:8161 -p 61616:61616  richardchesterwood/k8s-fleetman-queue:release2
+ b.  Make sure your queue is running: http://localhost:8161/ (login: admin/admin)
+ 
+ c: > docker run -d -p 27017:27017 mongo:3.6.5-jessie 
+ 
+ 5. Run PositionSimulator springboot app 
+ 6. Test: Check if the data is going into 'positionQueue' in http://localhost:8161/admin/browse.jsp?JMSDestination=positionQueue	 
+
+ 
+ 7. Run PositionTracker springboot app
+ 8. Test: http://localhost:8090/history/City%20Truck  (Note: YOu'll see exception : VEHICLE NOT FOUND.....com.virtualpairprogrammers.tracker.domain.VehicleNotFoundException - which is ok)
+ 
+ 
+ 9. Run Fleetman API GATEWAY springboot app
+ 10. Test:http://localhost:8080/history/City%20Truck 
+ 
+ 11. Now lets setup the Angular App: Go to folder k8s-fleetman-webapp-angular.
+ 12. Right click open wih VSCode 
+ 13. CTRL+Tild (~) > Will open the Terminal
+ 14. Now you will need to do setup : npm & node should be installed (I have: > npm -v =6.12.1  &  >node -v = v12.13.1)
+ 
+ *When I did > ng serve -> I got an error saying: You seem to not be depending on "@angular/core" and/or "rxjs". This is an error.
+ *To fix it: > npm link  & then >ng serve 
+ * OOps again failed with error something like: "ERROR in ./src/main.ts...etc etc "
+ * Many issues - Make sure you use admin rights in cmd - had to reinstall ng cli [npm install -g @angular/cli]
+ *Couldnt build the folder had to take a run in a seprate folder and then moved the angular app into the repository
+ 
+ 15. Test: http://localhost:4200/ (Enable degub=true in StompConfig and see if the messsgaes are coming)
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ Things TO DO:
+ 1. Have your own inlages in Docker  Hub for all the microservices. Start with Mongo and Active Mq
+ 2. Run all teh containers locally - docker.yml (using your containers)
+ 3. Run the same containers using K8s in AWS 
+ 4. Run the same containers using ECS Fargate
+ 5. Integrate with CI/CD pipeline (start with AWS CodePipeLine) 
+ 6. Use Mongo Client
+ 7. Understand how Angular app will be running using nginx in production(ng serve is not meant for production)
+ 8. Check why the command to remove all docker containers doesnt work in windows : > docker rm -f $(docker container ls -aq)
+ 
+ 
+ 
+ FLOW:
+1.PositionSimulator Generates Data and Pushes to the Active MQ Queue
+2.PositionTracker does 2 things:
+  a.reads from ActiveMQ Queue and pushes to MongoDB
+  b.@ http://localhost:8090/history/City%20Truck  => PositionTracker displays data from MongoDb
+4. Api Gateway does 2 things:
+  a. Pushes the message jsons to frontend(angular app) via socket ()
+  b. Also acts as a proxy layer for PositionTracker and is called by Angular Webapp to get the centre vehicle data (/updates) 
